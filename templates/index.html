@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>永雏客栈 - 英雄联盟阵亡助手</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+SC:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <!-- Full-screen Player Container -->
+    <div class="full-player-container">
+        <!-- Standby Screen (Holographic Taffy HUD) -->
+        <div class="standby-screen" id="standby-screen">
+            <div class="standby-content">
+                <div class="standby-avatar-glow">
+                    <img src="/static/img/taffy_happy.png" class="standby-avatar" alt="Taffy Standby">
+                </div>
+                <h2 class="standby-title">永 雏 客 栈</h2>
+                <div class="standby-status">
+                    <span class="status-pulse-dot"></span>
+                    <span class="status-text" id="standby-status-text">正在初始化，正在等待对局或死亡事件...</span>
+                </div>
+            </div>
+        </div>
+
+        <iframe 
+            id="bilibili-player"
+            src=""
+            width="100%" 
+            height="100%" 
+            scrolling="no" 
+            border="0" 
+            frameborder="no" 
+            framespacing="0" 
+            allowfullscreen="true"
+            allow="autoplay; encrypted-media">
+        </iframe>
+    </div>
+
+    <!-- Floating Settings Toggle Button -->
+    <div class="settings-trigger" id="settings-trigger" title="打开控制面板">
+        ⚙️
+    </div>
+
+    <!-- Slide-out Sidebar Panel -->
+    <div class="slide-panel" id="slide-panel">
+        <header class="panel-header">
+            <div class="logo-area">
+                <span class="logo-icon">🔔</span>
+                <div class="logo-text">
+                    <h1>永雏客栈</h1>
+                    <p>阵亡助手控制台</p>
+                </div>
+            </div>
+            <button class="btn-close" id="btn-close-panel" title="关闭面板">✕</button>
+        </header>
+
+        <div class="panel-body">
+            <!-- Connection Status -->
+            <div class="status-badge-container">
+                <div class="status-badge" id="ws-badge">
+                    <span class="dot"></span>
+                    <span class="text">未连接</span>
+                </div>
+                <span class="stream-status" id="stream-sound-status">🔊 声音加载中</span>
+            </div>
+
+            <!-- Autoplay Sound Tip -->
+            <div class="autoplay-tip" id="autoplay-tip">
+                💡 <b>声音授权提示</b>：首次使用请先**点击一次直播画面**，并在浏览器地址栏左侧的“网站设置”中将本站的“声音”设为“允许”，即可永久实现全自动有声播放与复活静音。
+            </div>
+
+            <!-- Status Card -->
+            <div class="glass-card status-card">
+                <div class="card-header">
+                    <h3>状态监视器</h3>
+                </div>
+                <div class="status-grid">
+                    <div class="avatar-container">
+                        <img id="taffy-avatar" src="/static/img/taffy_happy.png" alt="Taffy Status">
+                    </div>
+                    <div class="status-details">
+                        <div class="detail-row">
+                            <span class="label">游戏状态:</span>
+                            <span class="value badge" id="game-status-val">未运行</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">玩家状态:</span>
+                            <span class="value badge" id="player-status-val">未知</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">当前召唤师:</span>
+                            <span class="value text-highlight" id="summoner-name-val">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Simulation Controls -->
+            <div class="glass-card actions-card">
+                <div class="card-header">
+                    <h3>调试控制</h3>
+                </div>
+                <div class="simulation-section" id="sim-controls">
+                    <h4>模拟测试工具</h4>
+                    <div class="btn-group">
+                        <button id="btn-sim-death" class="btn btn-danger">💀 模拟阵亡</button>
+                        <button id="btn-sim-respawn" class="btn btn-success">💖 模拟复活</button>
+                    </div>
+                </div>
+                <div class="test-section">
+                    <h4>手动测试</h4>
+                    <div class="btn-group-row">
+                        <button id="btn-test-open" class="btn btn-outline">📺 测试打开直播</button>
+                        <button id="btn-test-focus" class="btn btn-outline">🪟 测试窗口置顶</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Form -->
+            <div class="glass-card settings-card">
+                <div class="card-header">
+                    <h3>参数配置</h3>
+                </div>
+                <form id="settings-form" class="settings-form">
+                    <div class="form-row">
+                        <label for="room_id">B站直播间号:</label>
+                        <input type="text" id="room_id" required placeholder="例如: 22603245">
+                    </div>
+                    <div class="form-row">
+                        <label for="polling_interval">监控间隔 (秒):</label>
+                        <input type="number" id="polling_interval" min="0.1" max="10" step="0.1" required>
+                    </div>
+                    <div class="form-row">
+                        <label for="test_window_title">测试窗口标题:</label>
+                        <input type="text" id="test_window_title" required placeholder="例如: 无标题 - 记事本">
+                    </div>
+                    <div class="toggle-group">
+                        <div class="toggle-row">
+                            <div class="toggle-info">
+                                <span class="toggle-label">运行监控</span>
+                                <span class="toggle-desc">开启自动轮询游戏状态</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="is_monitoring">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="toggle-row">
+                            <div class="toggle-info">
+                                <span class="toggle-label">模拟测试模式</span>
+                                <span class="toggle-desc">关闭LOL检测，手动调试</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="is_simulation">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="btn-save-settings">💾 保存配置</button>
+                </form>
+            </div>
+
+            <!-- System Logs -->
+            <div class="glass-card console-card">
+                <div class="card-header">
+                    <h3>运行日志</h3>
+                    <button id="btn-clear-logs" class="btn-clear">清除</button>
+                </div>
+                <div class="console-output" id="console-output">
+                    <!-- Logs will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

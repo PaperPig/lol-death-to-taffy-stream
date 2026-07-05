@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "永雏客栈 - 哔哩哔哩官方直播控制插件",
+  "version": "1.0",
+  "description": "配合英雄联盟阵亡助手，实现官方 B站 直播间页面（live.bilibili.com）在游戏死亡时自动开音量，复活自动静音。",
+  "content_scripts": [
+    {
+      "matches": ["*://live.bilibili.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ]
+}
